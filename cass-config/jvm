@@ -1,0 +1,7 @@
+-XX:+UseZGC
+-XX:ConcGCThreads=16
+-XX:ParallelGCThreads=16
+-XX:+UseTransparentHugePages
+-verbose:gc
+-Xms32G
+-Xmx32G

@@ -1,0 +1,4 @@
+ubuntu - memlock unlimited
+ubuntu - nofile 1048576
+ubuntu - nproc 32768
+ubuntu - as unlimited

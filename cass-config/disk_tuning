@@ -1,0 +1,8 @@
+echo "You invoked Felipe mode and he decided to tune nomerges, read_ahead_kb and scheduler for nvme1n1, congrats!"
+
+MD_NAME=nvme1n1
+
+sudo sh -c "echo 1 > /sys/block/$MD_NAME/queue/nomerges"
+sudo sh -c "echo 8 > /sys/block/$MD_NAME/queue/read_ahead_kb"
+sudo sh -c "echo none > /sys/block/$MD_NAME/queue/scheduler"
+
