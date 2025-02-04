@@ -1,7 +1,10 @@
 -XX:+UseZGC
+-XX:+UseDynamicNumberOfGCThreads
 -XX:ConcGCThreads=16
 -XX:ParallelGCThreads=16
 -XX:+UseTransparentHugePages
+-XX:+AlwaysPreTouch
+-XX:-ZUncommit
 -verbose:gc
 -Xms32G
 -Xmx32G

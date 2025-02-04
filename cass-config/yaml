@@ -45,8 +45,8 @@ commitlog_disk_access_mode: auto
 seed_provider:
   - class_name: org.apache.cassandra.locator.SimpleSeedProvider
     parameters:
-      - seeds: "172.31.2.191:7000"
-concurrent_reads: 32
+      - seeds: "172.31.56.74:7000"
+concurrent_reads: 256
 concurrent_writes: 32
 concurrent_counter_writes: 32
 concurrent_materialized_view_writes: 32
@@ -67,12 +67,12 @@ trickle_fsync: true
 trickle_fsync_interval: 10240KiB
 storage_port: 7000
 ssl_storage_port: 7001
-listen_address: 172.31.2.191
+listen_address: 172.31.56.74
 start_native_transport: true
 native_transport_port: 9042
 native_transport_allow_older_protocols: true
 rpc_address: 0.0.0.0
-broadcast_rpc_address: 172.31.2.191
+broadcast_rpc_address: 172.31.56.74
 rpc_keepalive: true
 incremental_backups: false
 snapshot_before_compaction: false
@@ -91,7 +91,7 @@ default_compaction:
     min_sstable_size: 100MiB
 concurrent_compactors: 16
 concurrent_materialized_view_builders: 1
-compaction_throughput: 256MiB/s
+compaction_throughput: 0MiB/s
 sstable_preemptive_open_interval: 50MiB
 uuid_sstable_identifiers_enabled: true
 stream_entire_sstables: true
@@ -162,4 +162,10 @@ drop_compact_storage_enabled: false
 default_secondary_index: sai
 default_secondary_index_enabled: true
 storage_compatibility_mode: NONE
-
+native_transport_max_concurrent_connections_per_ip: -1
+native_transport_max_concurrent_connections: -1
+native_transport_rate_limiting_enabled: false
+native_transport_max_request_data_in_flight: 2GiB
+native_transport_max_request_data_in_flight_per_ip: 2GiB
+native_transport_receive_queue_capacity: 2147483646B
+native_transport_max_threads: 64
