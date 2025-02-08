@@ -1,0 +1,10 @@
+LATTE_THREADS=16
+LATTE_OPERATIONS=standard1_insert:1,standard1_select:4
+LATTE_CONNECTIONS=1
+LATTE_TEST_NAME=80_read_20_write_tablets
+LATTE_CONCURRENCY=--concurrency 64
+LATTE_BIN_PATH=latte-main/target/release/
+LATTE_DURATION=30m
+LATTE_PROFILE=latte-main/workloads/basic/cass-5-0-initiative.rn
+LATTE_RATE=180000
+LATTE_HOST=172.31.57.182
