@@ -1,0 +1,6 @@
+LATTE_OPERATIONS=standard1_insert:1,standard1_select:4
+LATTE_BIN=
+LATTE_CONNECTIONS=1
+LATTE_PROFILE=workloads/uniform/cass-5-0-initiative.rn
+LATTE_RATE=160000
+LATTE_HOST=172.31.56.74
