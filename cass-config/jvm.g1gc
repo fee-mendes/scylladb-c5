@@ -1,0 +1,8 @@
+-XX:+UseG1GC
+-XX:G1RSetUpdatingPauseTimePercent=5
+-XX:MaxGCPauseMillis=300
+-XX:InitiatingHeapOccupancyPercent=70
+-XX:ParallelGCThreads=8
+-XX:ConcGCThreads=8
+-Xms31G
+-Xmx31G

@@ -3,6 +3,8 @@ echo "You invoked Felipe mode and he decided to tune nomerges, read_ahead_kb and
 MD_NAME=nvme1n1
 
 sudo sh -c "echo 1 > /sys/block/$MD_NAME/queue/nomerges"
-sudo sh -c "echo 8 > /sys/block/$MD_NAME/queue/read_ahead_kb"
+sudo sh -c "echo 4 > /sys/block/$MD_NAME/queue/read_ahead_kb"
 sudo sh -c "echo none > /sys/block/$MD_NAME/queue/scheduler"
-sudo sh -c "echo madvise > /sys/kernel/mm/transparent_hugepage/defrag"
+sudo sh -c "echo always > /sys/kernel/mm/transparent_hugepage/enabled"
+sudo sh -c "echo never > /sys/kernel/mm/transparent_hugepage/defrag"
+

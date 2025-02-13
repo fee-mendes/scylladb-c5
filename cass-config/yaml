@@ -32,8 +32,8 @@ cdc_enabled: false
 disk_failure_policy: stop
 commit_failure_policy: stop
 prepared_statements_cache_size: 10MiB
-key_cache_size: 0MiB
-row_cache_size: 0MiB
+key_cache_size: 0GiB # 2GiB for in-memory tests
+row_cache_size: 0GiB # 51G for in-memory tests
 row_cache_save_period: 0s
 counter_cache_size:
 counter_cache_save_period: 7200s
@@ -46,7 +46,7 @@ seed_provider:
   - class_name: org.apache.cassandra.locator.SimpleSeedProvider
     parameters:
       - seeds: "172.31.56.74:7000"
-concurrent_reads: 256
+concurrent_reads: 128
 concurrent_writes: 32
 concurrent_counter_writes: 32
 concurrent_materialized_view_writes: 32
@@ -59,8 +59,8 @@ memtable:
       class_name: TrieMemtable
     default:
       inherits: trie
-memtable_heap_space: 16384MiB
-memtable_offheap_space: 8192MiB
+memtable_heap_space: 2048MiB
+memtable_offheap_space: 2048MiB
 memtable_allocation_type: offheap_objects
 commitlog_total_space: 131072MiB
 trickle_fsync: true
@@ -89,9 +89,9 @@ default_compaction:
     target_sstable_size: 1GiB
     sstable_growth: 0.3333333333333333
     min_sstable_size: 100MiB
-concurrent_compactors: 16
+concurrent_compactors: 4
 concurrent_materialized_view_builders: 1
-compaction_throughput: 0MiB/s
+compaction_throughput: 256MiB/s
 sstable_preemptive_open_interval: 50MiB
 uuid_sstable_identifiers_enabled: true
 stream_entire_sstables: true
@@ -165,7 +165,8 @@ storage_compatibility_mode: NONE
 native_transport_max_concurrent_connections_per_ip: -1
 native_transport_max_concurrent_connections: -1
 native_transport_rate_limiting_enabled: false
-native_transport_max_request_data_in_flight: 2GiB
-native_transport_max_request_data_in_flight_per_ip: 2GiB
-native_transport_receive_queue_capacity: 2147483646B
-native_transport_max_threads: 64
+native_transport_max_threads: 128
+stream_throughput_outbound: 1875MiB/s
+inter_dc_stream_throughput_outbound: 1875MiB/s
+entire_sstable_stream_throughput_outbound: 1875MiB/s
+entire_sstable_inter_dc_stream_throughput_outbound: 1875MiB/s
