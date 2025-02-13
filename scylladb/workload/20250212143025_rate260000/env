@@ -1,0 +1,13 @@
+LATTE_THREADS=32
+LATTE_OPERATIONS=standard1_insert:1,standard1_insert_cache:4,standard1_select:4,standard1_select_cache:16
+LATTE_START=--start-cycle 1
+LATTE_CONNECTIONS=1
+LATTE_PARAMS=-P offset=140000000 -P cache_rows=5000000
+LATTE_TEST_NAME=workload/
+LATTE_END=--end-cycle 40000000
+LATTE_CONCURRENCY=--concurrency 32
+LATTE_BIN_PATH=latte-main/target/release/
+LATTE_DURATION=30m
+LATTE_PROFILE=workload.rn
+LATTE_RATE=260000
+LATTE_HOST=172.31.57.182
