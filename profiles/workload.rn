@@ -1,0 +1,105 @@
+use std::future;
+
+use latte::*;
+
+const ROW_COUNT = latte::param!("row_count", 1500000000);
+const CACHE_ROWS = latte::param!("cache_rows", 40000000);
+const OFFSET = latte::param!("offset", 40000000);
+const REPLICATION_FACTOR = latte::param!("replication_factor", 3);
+
+const KEYSPACE = "keyspace1";
+const TABLES = #{
+    "STANDARD1": "standard1",
+};
+const P_STMT = #{
+    "STANDARD1": #{
+        "INSERT": "p_stmt_standard1__insert",
+        "SELECT": "p_stmt_standard1__select",
+    },
+};
+
+///////////////////////
+// SPECIAL FUNCTIONS //
+///////////////////////
+
+pub async fn schema(db) {
+    db.execute(`CREATE KEYSPACE IF NOT EXISTS ${KEYSPACE} WITH REPLICATION = {
+        'class': 'NetworkTopologyStrategy', 'datacenter1': ${REPLICATION_FACTOR} }`).await?;
+    db.execute(`CREATE TABLE IF NOT EXISTS ${KEYSPACE}.${TABLES.STANDARD1}(
+        key blob PRIMARY KEY, c0 blob, c1 blob, c2 blob, c3 blob, c4 blob)
+    `).await?;
+}
+
+pub async fn erase(db) {
+    let errors = []; let futures = [];
+    for table_name in TABLES.values() {
+        futures.push(db.execute(`TRUNCATE TABLE ${KEYSPACE}.${table_name}`));
+    }
+    for result in future::join(futures).await { match result { Err(e) => errors.push(e) } }
+    if errors.len() < 1 { return Ok(()) }
+    Err(`Failed to execute 'erase' queries: ${errors.0}`)
+}
+
+pub async fn prepare(db) {
+    db.prepare(P_STMT.STANDARD1.INSERT,
+        `INSERT INTO ${KEYSPACE}.${TABLES.STANDARD1}(key, c0, c1, c2, c3, c4)` +
+        " VALUES (:key, :c0, :c1, :c2, :c3, :c4)").await?;
+    db.prepare(P_STMT.STANDARD1.SELECT,
+        `SELECT * FROM ${KEYSPACE}.${TABLES.STANDARD1}` +
+        " WHERE key = :key").await?;
+
+    db.load_cycle_count = ROW_COUNT;
+}
+
+pub async fn load(db, i) {
+    let errors = []; let futures = [];
+    futures.push(standard1_insert(db, i));
+    for result in future::join(futures).await { match result { Err(e) => errors.push(e) } }
+    if errors.len() < 1 { return Ok(()) }
+    Err(`Failed to execute 'load' queries: ${errors.0}`)
+}
+
+//////////////////////////////////
+// SPECIFIC PER-TABLE FUNCTIONS //
+//////////////////////////////////
+
+pub async fn standard1_insert(db, i) {
+    let idx = i % ROW_COUNT + OFFSET;
+    // NOTE: '10' in the 'blob(idx, 10)' is number of bytes
+    let key = blob(idx, 10);
+    // NOTE: '1000' in the 'idx+1000' changes the index making the 'blob' func use different 'seed'
+    let c0 = blob(idx+1000, 200);
+    let c1 = blob(idx+2000, 200);
+    let c2 = blob(idx+3000, 200);
+    let c3 = blob(idx+4000, 200);
+    let c4 = blob(idx+5000, 200);
+    db.execute_prepared(P_STMT.STANDARD1.INSERT, [key, c0, c1, c2, c3, c4]).await?
+}
+
+pub async fn standard1_select(db, i) {
+    let idx = i % ROW_COUNT + OFFSET;
+    // println!("{}", idx);
+    // println!("i: {}, ROW_COUNT: {}, OFFSET: {}, idx: {}", i, ROW_COUNT, OFFSET, idx);
+    let key = blob(idx, 10);
+    // println!("key: {:?}", key);
+    db.execute_prepared(P_STMT.STANDARD1.SELECT, [key]).await?
+}
+
+pub async fn standard1_insert_cache(db, i) {
+   let idx = i % CACHE_ROWS;
+   // println!("{}", idx);
+   let key = blob(idx, 10);
+   let c0 = blob(idx+1000, 200);
+   let c1 = blob(idx+2000, 200);
+   let c2 = blob(idx+3000, 200);
+   let c3 = blob(idx+4000, 200);
+   let c4 = blob(idx+5000, 200);
+   db.execute_prepared(P_STMT.STANDARD1.INSERT, [key, c0, c1, c2, c3, c4]).await?
+}
+
+pub async fn standard1_select_cache(db, i) {
+   let idx = i % CACHE_ROWS;
+   // println!("{}", idx);
+   let key = blob(idx, 10);
+   db.execute_prepared(P_STMT.STANDARD1.SELECT, [key]).await?
+}

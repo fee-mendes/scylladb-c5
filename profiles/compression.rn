@@ -1,0 +1,83 @@
+use std::future;
+
+use latte::*;
+
+const ROW_COUNT = latte::param!("row_count", 1000000000);
+const REPLICATION_FACTOR = latte::param!("replication_factor", 3);
+
+const KEYSPACE = "nw";
+const TABLES = #{
+    "COMPRESSION": "compression",
+};
+const P_STMT = #{
+    "COMPRESSION": #{
+        "INSERT": "p_stmt_insert",
+        "SELECT": "p_stmt_select",
+    },
+};
+
+///////////////////////
+// SPECIAL FUNCTIONS //
+///////////////////////
+
+pub async fn schema(db) {
+    db.execute(`CREATE KEYSPACE IF NOT EXISTS ${KEYSPACE} WITH REPLICATION = {
+        'class': 'NetworkTopologyStrategy', 'datacenter1': ${REPLICATION_FACTOR} }`).await?;
+    db.execute(`CREATE TABLE IF NOT EXISTS ${KEYSPACE}.${TABLES.COMPRESSION} (
+        key uuid PRIMARY KEY, ts timestamp, v text) WITH 
+        compression = {'chunk_length_in_kb': '4', 'class': 'org.apache.cassandra.io.compress.LZ4Compressor'}
+    `).await?;
+}
+
+pub async fn erase(db) {
+    let errors = []; let futures = [];
+    for table_name in TABLES.values() {
+        futures.push(db.execute(`TRUNCATE TABLE ${KEYSPACE}.${table_name}`));
+    }
+    for result in future::join(futures).await { match result { Err(e) => errors.push(e) } }
+    if errors.len() < 1 { return Ok(()) }
+    Err(`Failed to execute 'erase' queries: ${errors.0}`)
+}
+
+pub async fn prepare(db) {
+    db.prepare(P_STMT.COMPRESSION.INSERT,
+        `INSERT INTO ${KEYSPACE}.${TABLES.COMPRESSION} (key, ts, v)` +
+        " VALUES (:key, :ts, :v)").await?;
+    db.prepare(P_STMT.COMPRESSION.SELECT,
+        `SELECT * FROM ${KEYSPACE}.${TABLES.COMPRESSION}` +
+        " WHERE key = :key").await?;
+
+    println!("Loading dataset");
+    db.data.DATASET = fs::read_lines("/home/ubuntu/latte/workloads/compression/random.txt")?;
+    println!("Load complete, read {} rows.", db.data.DATASET.len());
+
+    db.load_cycle_count = ROW_COUNT;
+}
+
+pub async fn load(db, i) {
+    let errors = []; let futures = [];
+    futures.push(compression_insert(db, i));
+    for result in future::join(futures).await { match result { Err(e) => errors.push(e) } }
+    if errors.len() < 1 { return Ok(()) }
+    Err(`Failed to execute 'load' queries: ${errors.0}`)
+}
+
+//////////////////////////////////
+// SPECIFIC PER-TABLE FUNCTIONS //
+//////////////////////////////////
+
+pub async fn compression_insert(db, i) {
+    let idx = i % ROW_COUNT;
+    // NOTE: '10' in the 'blob(idx, 10)' is number of bytes
+    let key = uuid(idx);
+    let ts = now_timestamp() * 1_000 + i;
+    println!("{}", ts);
+    let v = latte::hash_select(i, db.data.DATASET);
+    db.execute_prepared(P_STMT.COMPRESSION.INSERT, [key, ts, v]).await?
+}
+
+pub async fn compression_select(db, i) {
+    let idx = i % ROW_COUNT;
+    let key = uuid(idx);
+    db.execute_prepared(P_STMT.COMPRESSION.SELECT, [key]).await?
+}
