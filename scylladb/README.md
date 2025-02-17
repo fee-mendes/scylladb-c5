@@ -14,7 +14,6 @@ Below are the configurations used for ScyllaDB in this benchmark.
 compaction_static_shares: 50
 stream_io_throughput_mb_per_sec: 98
 compaction_throughput_mb_per_sec: 98
-sstable_summary_ratio: 0.003
 ```
 
 # Test commands used
@@ -38,4 +37,5 @@ latte  run  ${LATTE_PROFILE}  ${LATTE_HOST}  --rate  ${LATTE_RATE}  --duration  
 ```
 index_cache_fraction: 0.5
 ICS + SAG 1.5
+sstable_summary_ratio: 0.003
 ```
