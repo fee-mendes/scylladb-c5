@@ -1,0 +1,8 @@
+LATTE_OPERATIONS=standard1_insert:4,standard1_select:1
+LATTE_CONNECTIONS=1
+LATTE_TEST_NAME=write_mostly_nodsync
+LATTE_CONCURRENCY=--concurrency 128
+LATTE_BIN_PATH=/home/ubuntu/latte/target/release/
+LATTE_PROFILE=/home/ubuntu/profiles/uniform.rn
+LATTE_RATE=80000
+LATTE_HOST=172.31.13.187
