@@ -1,0 +1,10 @@
+LATTE_OPERATIONS=standard1_insert:4,standard1_select:1
+LATTE_START=--start-cycle 1
+LATTE_CONNECTIONS=1
+LATTE_TEST_NAME=20_read_80_write_uniform_tablets
+LATTE_END=--end-cycle 40000000
+LATTE_CONCURRENCY=--concurrency 128
+LATTE_BIN_PATH=/home/ubuntu/latte/target/release/
+LATTE_PROFILE=/home/ubuntu/profiles/uniform.rn
+LATTE_RATE=40000
+LATTE_HOST=172.31.13.187
